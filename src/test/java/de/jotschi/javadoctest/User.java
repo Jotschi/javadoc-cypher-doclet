@@ -1,7 +1,7 @@
 package de.jotschi.javadoctest;
 
 /**
- * The User POJO
+ * The User Domain Model class
  * 
  * <pre>
  * {@code
@@ -11,7 +11,7 @@ package de.jotschi.javadoctest;
  * }
  * </pre>
  * <p>
- * <img width="640" height="301" src="https://raw.github.com/wiki/Jotschi/javadoc-cypher-test/images/cypher/User.jpg" alt="">
+ * <img src="https://raw.github.com/Jotschi/javadoc-cypher-doclet/gh-pages/cypher/de.jotschi.javadoctest.User.jpg" alt="">
  * <p>
  * 
  * @author jotschi

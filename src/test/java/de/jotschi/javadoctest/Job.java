@@ -1,7 +1,10 @@
 package de.jotschi.javadoctest;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * The Job POJO
+ * The Job Domain model class
  * 
  * <pre>
  * {@code
@@ -11,11 +14,16 @@ package de.jotschi.javadoctest;
  * }
  * </pre>
  * <p>
- * <img width="640" height="301" src="https://raw.github.com/wiki/Jotschi/javadoc-cypher-test/images/cypher/Job.jpg" alt="">
+ * <img src="https://raw.github.com/Jotschi/javadoc-cypher-doclet/gh-pages/cypher/de.jotschi.javadoctest.Job.jpg" alt="">
  * <p>
+ * 
  * @author jotschi
  *
  */
 public class Job {
+
+	private List<User> getEmployees() {
+		return Collections.emptyList();
+	}
 
 }
