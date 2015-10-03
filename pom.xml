@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.jotschi</groupId>
+	<artifactId>javadoc-cypher-test</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>jdk.tools</groupId>
+			<artifactId>jdk.tools</artifactId>
+			<version>jdk1.8.0</version>
+			<scope>system</scope>
+			<systemPath>${toolsjar}</systemPath>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<useStandardDocletOptions>false</useStandardDocletOptions>
+					<doclet>de.jotschi.javadoctest.CypherDoclet</doclet>
+					<docletArtifact>
+						<groupId>de.jotschi</groupId>
+						<artifactId>javadoc-cypher-test</artifactId>
+						<version>0.0.1-SNAPSHOT</version>
+					</docletArtifact>
+					<author>false</author>
+					<bottom>null</bottom>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
