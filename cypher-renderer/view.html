@@ -1,302 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-	<meta charset="utf-8">
-	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-	<style>
-	.relationship {
-		fill: none;
-		stroke: #666;
-		stroke-width: 1.5px;
-	}
+<head>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<style>
+.relationship {
+	fill: none;
+	stroke: #666;
+	stroke-width: 1.5px;
+}
 
-	body {
-		background: #eee;
-	}
+body {
+	background: #eee;
+}
 
-	.content {
-		width: 600px;
-    height: 600px;
+.content {
+	width: 600px;
+	height: 600px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+}
 
-    position: absolute;
-    top:0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-	}
+.node circle {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
 
-	.node circle {
-		stroke: #fff;
-		stroke-width: 1.5px;
-	}
-
-	text {
-		font: 14px sans-serif;
-		pointer-events: none;
-	}
-	</style>
+text {
+	font: 14px sans-serif;
+	pointer-events: none;
+}
+</style>
 </head>
 <body>
 	<div class="content"></div>
 	<script type="text/javascript">
-
-
 		function render(cypher) {
 
-				var w = 600;
-				var h = 600;
-				var linkDistance=180;
+			var w = 600;
+			var h = 600;
+			var linkDistance = 180;
 
-				var colors = d3.scale.category10();
-				
-				function  convert(mappedData) {
+			var colors = d3.scale.category10();
 
-					var nodes = new Array();
-					var edges = new Array();
-					var types = {};
-					var ids =  {};
-					var idTypeMap = {};
-					var relIdTypeMap = {};
+			function convert(mappedData) {
 
-					for (i = 0; i < mappedData.length; i++) {
-						ids[mappedData[i].to.id] = 0;
-						ids[mappedData[i].from.id] = 0;
+				var nodes = new Array();
+				var edges = new Array();
+				var types = {};
+				var ids = {};
+				var idTypeMap = {};
+				var relIdTypeMap = {};
 
-						if (mappedData[i].to.type != "") {
-							idTypeMap[mappedData[i].to.id]= mappedData[i].to.type;
-							types[mappedData[i].to.type] = 0;
+				for (i = 0; i < mappedData.length; i++) {
+					ids[mappedData[i].to.id] = 0;
+					ids[mappedData[i].from.id] = 0;
+
+					if (mappedData[i].to.type != "") {
+						idTypeMap[mappedData[i].to.id] = mappedData[i].to.type;
+						types[mappedData[i].to.type] = 0;
+					}
+
+					if (mappedData[i].from.type != "") {
+						idTypeMap[mappedData[i].from.id] = mappedData[i].from.type;
+						types[mappedData[i].from.type] = 0;
+					}
+
+					if (mappedData[i].rel.type != "") {
+						relIdTypeMap[mappedData[i].rel.id] = mappedData[i].rel.type;
+					}
+				}
+
+				var i = 0;
+				for ( var type in types) {
+					types[type] = i;
+					i++;
+				}
+
+				i = 0;
+				for ( var id in ids) {
+					ids[id] = i;
+					i++;
+				}
+
+				for ( var id in idTypeMap) {
+					var type = idTypeMap[id];
+					var name = id + ":" + type;
+					var group = types[type];
+					nodes.push({
+						"name" : name,
+						"group" : group
+					});
+				}
+
+				for (i = 0; i < mappedData.length; i++) {
+					var c = mappedData[i];
+					var from = ids[c.from.id];
+					var to = ids[c.to.id];
+					var relType = relIdTypeMap[c.rel.id];
+					var relName = c.rel.id + ":" + relType;
+					edges.push({
+						"source" : from,
+						"target" : to,
+						"name" : relName
+					});
+				}
+
+				var dataset = {
+					"nodes" : nodes,
+					"edges" : edges
+				};
+				return dataset;
+			}
+
+			function parseCypher(cypherString) {
+
+				var lines = cypherString.split(",");
+				var parsedData = new Array();
+
+				for (i = 0; i < lines.length; i++) {
+					var re = /\(([^:\)]*)(:)?([^\)]*)\)(\<)?-(\[([^:]]*)(:)?(.*)\])?-(\>)?\(([^:\)]*)(:)?(.*)\)/g;
+					var line = lines[i];
+					var data = re.exec(line);
+					if (data == null) {
+						console.log("Can't parse line " + line)
+						return;
+					}
+					var direction = "both";
+
+					if (data[4] && !data[9]) {
+						direction = "in";
+					} else if (!data[4] && data[9]) {
+						direction = "out";
+					}
+
+					var mappedData = {
+						"from" : {
+							"id" : data[1],
+							"type" : data[3]
+						},
+						"rel" : {
+							"id" : data[6],
+							"type" : data[8],
+							"dir" : direction
+						},
+						"to" : {
+							"id" : data[10],
+							"type" : data[12]
 						}
-
-						if (mappedData[i].from.type != "") {
-							idTypeMap[mappedData[i].from.id]= mappedData[i].from.type;
-							types[mappedData[i].from.type] = 0;
-						}
-
-						if (mappedData[i].rel.type != "") {
-							relIdTypeMap[mappedData[i].rel.id] = mappedData[i].rel.type;
-						}
-					}
-
-					var i = 0;
-					for (var type in types) {
-						types[type] = i;		
-						i++;
-					}
-
-					i = 0;
-					for (var id in ids) {
-						ids[id] = i;		
-						i++;
-					}
-
-					for (var id in idTypeMap) {
-						var type = idTypeMap[id];
-						var name = id + ":" + type;
-						var group = types[type];
-						nodes.push({"name": name, "group": group});	
-					}
-
-					for (i = 0; i < mappedData.length; i++) {
-						  var c = mappedData[i];
-						  var from = ids[c.from.id];
-						  var to   = ids[c.to.id];
-						  var relType = relIdTypeMap[c.rel.id];
-						  var relName = c.rel.id + ":" + relType;
-							edges.push({"source": from, "target": to, "name": relName });
-					}
-
-					var dataset = {
-							"nodes": nodes,
-							"edges": edges
 					};
-					return dataset;
-				}
-			
-
-				function parseCypher(cypherString) {
-					
-					var lines = cypherString.split("\n");
-					var parsedData = new Array();
-
-					for (i = 0; i< lines.length; i++) {
-						var re = /\(([^:\)]*)(:)?([^\)]*)\)(\<)?-(\[([^:]]*)(:)?(.*)\])?-(\>)?\(([^:\)]*)(:)?(.*)\)/g;
-						var line = lines[i];
-						var data = re.exec(line);
-						if(data==null) {
-							console.log("Can't parse line " + line)
-							return;
-						}
-						var direction = "both";
-
-						if (data[4] && !data[9]) {
-							direction = "in";
-						} else if (!data[4] && data[9]) {
-							direction = "out";
-						}
-
-						var mappedData = {
-							"from": {
-								"id": data[1],
-								"type": data[3]
-							},
-							"rel": {
-								"id": data[6],
-								"type": data[8],
-								"dir": direction
-							},
-							"to": {
-								"id": data[10],
-								"type": data[12]
-							}
-						};
-						parsedData.push(mappedData);
-					}
-
-					return parsedData;
+					parsedData.push(mappedData);
 				}
 
-				var mappedData = parseCypher(cypher);
-				var dataset = convert(mappedData);
-				var svg = d3.select(".content").append("svg").attr({"width":w,"height":h});
+				return parsedData;
+			}
 
-				var force = d3.layout.force()
-						.nodes(dataset.nodes)
-						.links(dataset.edges)
-						.size([w,h])
-						.linkDistance([linkDistance])
-						.charge([-900])
-						.theta(0.8)
-						.gravity(0.05)
-						.start();
+			var mappedData = parseCypher(cypher);
+			var dataset = convert(mappedData);
+			var svg = d3.select(".content").append("svg").attr({
+				"width" : w,
+				"height" : h
+			});
 
-				var edges = svg.selectAll("line")
-						.data(dataset.edges)
-						.enter()
-						.append("line")
-						.attr("id",function(d,i) {return 'edge'+i})
-						.attr('marker-end','url(#arrowhead)')
-						.style("stroke","#ccc")
-						.style("pointer-events", "none");
-				
-				var color = d3.scale.category20();
-			 
-				var node = svg.selectAll(".node")
-						.data(force.nodes())
-						.enter().append("g")
-						.attr("class", "node")
-						.on("mouseover", mouseover)
-						.on("mouseout", mouseout)
-						.call(force.drag);
-				
-				node.append("circle")
-						.attr("r", 15)
-						.style("fill", function(d) { return color(d.group); });
-				
-				node.append("text")
-						.attr("x", 20)
-						.attr("dy", ".35em")
-						.text(function(d) { return d.name; })
-						.style("fill", function(d) { return color(d.group); });
-				
-				
-				var edgepaths = svg.selectAll(".edgepath")
-						.data(dataset.edges)
-						.enter()
-						.append('path')
-						.attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
-									 'class':'edgepath',
-									 'fill-opacity':0,
-									 'stroke-opacity':0,
-									 'fill':'blue',
-									 'stroke':'red',
-									 'id':function(d,i) {return 'edgepath'+i}})
-								.style("pointer-events", "none");
+			var force = d3.layout.force().nodes(dataset.nodes).links(
+					dataset.edges).size([ w, h ])
+					.linkDistance([ linkDistance ]).charge([ -900 ]).theta(0.8)
+					.gravity(0.05).start();
 
-				var edgelabels = svg.selectAll(".edgelabel")
-						.data(dataset.edges)
-						.enter()
-						.append('text')
-						.style("pointer-events", "none")
-						.attr({'class':'edgelabel',
-									 'id':function(d,i){return 'edgelabel'+i},
-									 'dx':45,
-									 'dy':14,
-									 'font-size':10,
-									 'fill':'#aaa'});
+			var edges = svg.selectAll("line").data(dataset.edges).enter()
+					.append("line").attr("id", function(d, i) {
+						return 'edge' + i
+					}).attr('marker-end', 'url(#arrowhead)').style("stroke",
+							"#ccc").style("pointer-events", "none");
 
-				edgelabels.append('textPath')
-						.attr('xlink:href',function(d,i) {return '#edgepath'+i})
-						.style("pointer-events", "none")
-						.text(function(d,i){return d.name});
+			var color = d3.scale.category20();
 
+			var node = svg.selectAll(".node").data(force.nodes()).enter()
+					.append("g").attr("class", "node").on("mouseover",
+							mouseover).on("mouseout", mouseout)
+					.call(force.drag);
 
-				svg.append('defs').append('marker')
-						.attr({'id':'arrowhead',
-									 'viewBox':'-0 -5 10 10',
-									 'refX':25,
-									 'refY':0,
-									 //'markerUnits':'strokeWidth',
-									 'orient':'auto',
-									 'markerWidth':10,
-									 'markerHeight':10,
-									 'xoverflow':'visible'})
-						.append('svg:path')
-								.attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-								.attr('fill', '#ccc')
-								.attr('stroke','#ccc');
-				 
+			node.append("circle").attr("r", 15).style("fill", function(d) {
+				return color(d.group);
+			});
 
-				function mouseover() {
-							d3.select(this).select("circle").transition()
-								.duration(750)
-								.attr("r", 20);
-				}
+			node.append("text").attr("x", 20).attr("dy", ".35em").text(
+					function(d) {
+						return d.name;
+					}).style("fill", function(d) {
+				return color(d.group);
+			});
 
-
-				function mouseout() {
-							d3.select(this).select("circle").transition()
-								.duration(750)
-								.attr("r", 15);
-				}
-
-				force.on("tick", function() {
-
-						edges.attr({"x1": function(d){return d.source.x;},
-												"y1": function(d){return d.source.y;},
-												"x2": function(d){return d.target.x;},
-												"y2": function(d){return d.target.y;}
-						});
-
-						node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-						edgepaths.attr('d', function(d) { var path='M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
-						return path});       
-
-						edgelabels.attr('transform',function(d,i) {
-								if (d.target.x<d.source.x) {
-										bbox = this.getBBox();
-										rx = bbox.x+bbox.width/2;
-										ry = bbox.y+bbox.height/2;
-										return 'rotate(180 '+rx+' '+ry+')';
-								} else {
-										return 'rotate(0)';
+			var edgepaths = svg.selectAll(".edgepath").data(dataset.edges)
+					.enter().append('path').attr(
+							{
+								'd' : function(d) {
+									return 'M ' + d.source.x + ' ' + d.source.y
+											+ ' L ' + d.target.x + ' '
+											+ d.target.y
+								},
+								'class' : 'edgepath',
+								'fill-opacity' : 0,
+								'stroke-opacity' : 0,
+								'fill' : 'blue',
+								'stroke' : 'red',
+								'id' : function(d, i) {
+									return 'edgepath' + i
 								}
-						});
+							}).style("pointer-events", "none");
 
+			var edgelabels = svg.selectAll(".edgelabel").data(dataset.edges)
+					.enter().append('text').style("pointer-events", "none")
+					.attr({
+						'class' : 'edgelabel',
+						'id' : function(d, i) {
+							return 'edgelabel' + i
+						},
+						'dx' : 45,
+						'dy' : 14,
+						'font-size' : 10,
+						'fill' : '#aaa'
+					});
 
+			edgelabels.append('textPath').attr('xlink:href', function(d, i) {
+				return '#edgepath' + i
+			}).style("pointer-events", "none").text(function(d, i) {
+				return d.name
+			});
+
+			svg.append('defs').append('marker').attr({
+				'id' : 'arrowhead',
+				'viewBox' : '-0 -5 10 10',
+				'refX' : 25,
+				'refY' : 0,
+				//'markerUnits':'strokeWidth',
+				'orient' : 'auto',
+				'markerWidth' : 10,
+				'markerHeight' : 10,
+				'xoverflow' : 'visible'
+			}).append('svg:path').attr('d', 'M 0,-5 L 10 ,0 L 0,5').attr(
+					'fill', '#ccc').attr('stroke', '#ccc');
+
+			function mouseover() {
+				d3.select(this).select("circle").transition().duration(750)
+						.attr("r", 20);
+			}
+
+			function mouseout() {
+				d3.select(this).select("circle").transition().duration(750)
+						.attr("r", 15);
+			}
+
+			force.on("tick", function() {
+
+				edges.attr({
+					"x1" : function(d) {
+						return d.source.x;
+					},
+					"y1" : function(d) {
+						return d.source.y;
+					},
+					"x2" : function(d) {
+						return d.target.x;
+					},
+					"y2" : function(d) {
+						return d.target.y;
+					}
 				});
 
+				node.attr("transform", function(d) {
+					return "translate(" + d.x + "," + d.y + ")";
+				});
+
+				edgepaths.attr('d', function(d) {
+					var path = 'M ' + d.source.x + ' ' + d.source.y + ' L '
+							+ d.target.x + ' ' + d.target.y;
+					return path
+				});
+
+				edgelabels.attr('transform', function(d, i) {
+					if (d.target.x < d.source.x) {
+						bbox = this.getBBox();
+						rx = bbox.x + bbox.width / 2;
+						ry = bbox.y + bbox.height / 2;
+						return 'rotate(180 ' + rx + ' ' + ry + ')';
+					} else {
+						return 'rotate(0)';
+					}
+				});
+
+			});
+
 			force.start();
-		 	for (var i = 0; i < 300; i++) {
-		    force.tick();
-		  }
+			for (var i = 0; i < 300; i++) {
+				force.tick();
+			}
 			force.stop();
 
 			return "DONE";
 		}
-
-
 	</script>
 
 </body>

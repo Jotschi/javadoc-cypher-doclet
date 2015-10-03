@@ -1,7 +1,7 @@
 package de.jotschi.javadoctest;
 
 /**
- * The User POJO
+ * The Job POJO
  * 
  * <pre>
  * {@code
@@ -11,12 +11,11 @@ package de.jotschi.javadoctest;
  * }
  * </pre>
  * <p>
- * <img width="640" height="301" src="https://raw.github.com/wiki/Jotschi/javadoc-cypher-test/images/cypher/User.jpg" alt="">
+ * <img width="640" height="301" src="https://raw.github.com/wiki/Jotschi/javadoc-cypher-test/images/cypher/Job.jpg" alt="">
  * <p>
- * 
  * @author jotschi
  *
  */
-public class User {
+public class Job {
 
 }
