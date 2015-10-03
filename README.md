@@ -45,7 +45,7 @@ Currently only node, relationship, node lines are supported. If you want to crea
 
 ## TODOs / Issues
 
-* Doclet may not work under windows (not tested)
+* Doclet may not work on windows (not tested)
 * Doclet is not published on maven central and must be build locally
 * Clipping of images may occur (especially with larger examples)
 * PNG support with alpha channel would be nice
