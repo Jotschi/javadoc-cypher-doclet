@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.jotschi</groupId>
-	<artifactId>javadoc-cypher-test</artifactId>
+	<artifactId>javadoc-cypher-doclet</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<properties>
 		<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
@@ -30,24 +30,81 @@
 		</dependency>
 	</dependencies>
 
+	<scm>
+		<connection>scm:git:git@github.com:jotschi/javadoc-cypher-doclet.git</connection>
+		<developerConnection>scm:git:git@github.com:jotschi/javadoc-cypher-doclet.git</developerConnection>
+		<url>https://github.com/jotschi/javadoc-cypher-doclet</url>
+		<tag>HEAD</tag>
+	</scm>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-publish-plugin</artifactId>
+				<version>1.1</version>
+				<configuration>
+					<!-- mono-module doesn't require site:stage -->
+					<scmBranch>gh-pages</scmBranch>
+					<content>${project.build.directory}/site/testapidocs</content>
+				</configuration>
+				<executions>
+					<execution>
+						<id>scm-publish</id>
+						<phase>site-deploy</phase>
+						<goals>
+							<goal>publish-scm</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>test-javadoc</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>cypher-images</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-javadoc</goal>
+						</goals>
+						<configuration>
+							<useStandardDocletOptions>false</useStandardDocletOptions>
+							<doclet>de.jotschi.javadoc.cypher.CypherDoclet</doclet>
+							<docletArtifact>
+								<groupId>de.jotschi</groupId>
+								<artifactId>javadoc-cypher-doclet</artifactId>
+								<version>0.0.1-SNAPSHOT</version>
+							</docletArtifact>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.0</version>
 				<configuration>
-					<useStandardDocletOptions>false</useStandardDocletOptions>
-					<doclet>de.jotschi.javadoc.cypher.CypherDoclet</doclet>
-					<docletArtifact>
-						<groupId>de.jotschi</groupId>
-						<artifactId>javadoc-cypher-test</artifactId>
-						<version>0.0.1-SNAPSHOT</version>
-					</docletArtifact>
-					<author>false</author>
-					<bottom>null</bottom>
+					<skip>true</skip>
+					<generateReports>false</generateReports>
+					<generateProjectInfo>false</generateProjectInfo>
+					<generateSitemap>false</generateSitemap>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+	<distributionManagement>
+		<site>
+			<id>github-site</id>
+			<url>scm:git:git@github.com:jotschi/javadoc-cypher-doclet.git</url>
+		</site>
+	</distributionManagement>
+
 </project>

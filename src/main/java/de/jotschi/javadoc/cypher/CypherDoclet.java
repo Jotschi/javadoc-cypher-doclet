@@ -42,7 +42,6 @@ public class CypherDoclet {
 
 		int codeIdx = comment.indexOf("@code");
 		if (codeIdx == -1) {
-			System.err.println("Did not find comment with @code");
 			return null;
 		}
 		int codeStart = codeIdx + 5;
@@ -56,25 +55,6 @@ public class CypherDoclet {
 			code = code.substring(0, code.length() - 1);
 		}
 		return code;
-		// System.out.println(code);
-
-		// int imageLinkStart = comment.indexOf("<img");
-		// if (imageLinkStart == -1) {
-		// System.err.println("Did not find image link");
-		// return;
-		// }
-		// int imageLinkStop = comment.indexOf(">", imageLinkStart) + 1;
-		// String imageLink = comment.substring(imageLinkStart, imageLinkStop);
-
-		// int imageSrcLinkStart = imageLink.indexOf("/cypher");
-		// int imageSrcLinkStop = imageLink.indexOf("\"", imageSrcLinkStart);
-
-		// String url = imageLink.substring(imageSrcLinkStart, imageSrcLinkStop);
-		// System.out.println(url);
-
-		// String imageName = url.substring(url.lastIndexOf("/") + 1);
-		// System.out.println(imageName);
-
 	}
 
 	public static void invokeRender(File outputDir, String imageName, String code) throws IOException, InterruptedException {
