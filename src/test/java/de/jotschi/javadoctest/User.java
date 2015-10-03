@@ -5,9 +5,8 @@ package de.jotschi.javadoctest;
  * 
  * <pre>
  * {@code
- * 	(a:Person)<-[r:KNOWS]-(b:Friend)
- * 	(a)<-[r:KNOWS]-(c:Atom)
- * 	(a)<-[r]->(d:Friend)
+ * 	(u:User)-[r:WORKS_AT]->(j:JOB)
+ * 	(u2:User)-[r:WORKS_AT]->(j)
  * }
  * </pre>
  * <p>

@@ -8,9 +8,10 @@ import java.util.List;
  * 
  * <pre>
  * {@code
- * 	(a:Person)<-[r:KNOWS]-(b:Friend)
- * 	(a)<-[r:KNOWS]-(c:Atom)
- * 	(a)<-[r]->(d:Friend)
+ * 	(j:Job)<-[r:WORKS_AT]-(u:User)
+ * 	(j)-[s:SOLVES]->(t1:Task)
+ * 	(j)-[s:SOLVES]->(t2:Task)
+ *  (j)-[s:SOLVES]->(t3:Task)
  * }
  * </pre>
  * <p>
